@@ -34,10 +34,11 @@ func RunHTTPServer(server *http.Server) {
 
 	select {
 	case err := <-serverErrCh:
-		errors.Fail("Server returning error", err)
+		signal.Reset(signals...)
+		errors.WrapAndCheck(err)
 	case sig := <-signalChan:
 		signal.Reset(signals...)
-		waitFor := 1 * time.Minute
+		waitFor := (1 * time.Minute) + (30 * time.Second)
 		Iprintf(
 			"Got '%s' signal, Stopping (Waiting for graceful shutdown: %s)\n",
 			sig.String(), waitFor.String(),

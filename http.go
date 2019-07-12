@@ -14,7 +14,7 @@ import (
 // RunHTTPServer run *http.Server,
 // when SIGTERM or SIGINT is recieved graceful shutdown the server.
 //
-// ErrorHandler must be defered.
+// github.com/payfazz/go-errors.HandleWith must be already defered.
 func RunHTTPServer(server *http.Server) {
 	serverErrCh := make(chan error, 1)
 	go func() {

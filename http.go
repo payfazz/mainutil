@@ -40,11 +40,11 @@ func RunHTTPServer(server *http.Server) {
 		signal.Reset(signals...)
 		waitFor := (1 * time.Minute) + (30 * time.Second)
 		Iprintf(
-			"Got '%s' signal, Stopping (Waiting for graceful shutdown: %s)\n",
+			"Got '%s' signal, Shutting down the server (Waiting for graceful shutdown: %s)\n",
 			sig.String(), waitFor.String(),
 		)
 		ctx, cancel := context.WithTimeout(context.Background(), waitFor)
 		defer cancel()
-		errors.CheckOrFail("Shutting down server returning error", server.Shutdown(ctx))
+		errors.CheckOrFail("Shutting down the server returning error", server.Shutdown(ctx))
 	}
 }

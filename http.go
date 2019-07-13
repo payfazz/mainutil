@@ -14,7 +14,7 @@ import (
 // RunHTTPServer run *http.Server,
 // when SIGTERM or SIGINT is recieved graceful shutdown the server.
 //
-// github.com/payfazz/go-errors.HandleWith must be already defered.
+// github.com/payfazz/go-errors.Handle must be already defered.
 func RunHTTPServer(server *http.Server) {
 	serverErrCh := make(chan error, 1)
 	go func() {
@@ -35,7 +35,7 @@ func RunHTTPServer(server *http.Server) {
 	select {
 	case err := <-serverErrCh:
 		signal.Reset(signals...)
-		errors.WrapAndCheck(err)
+		errors.Fail(errors.Wrap(err))
 	case sig := <-signalChan:
 		signal.Reset(signals...)
 		waitFor := (1 * time.Minute) + (30 * time.Second)
@@ -45,6 +45,8 @@ func RunHTTPServer(server *http.Server) {
 		)
 		ctx, cancel := context.WithTimeout(context.Background(), waitFor)
 		defer cancel()
-		errors.CheckOrFail("Shutting down the server returning error", server.Shutdown(ctx))
+		if err := server.Shutdown(ctx); err != nil {
+			errors.Fail(errors.NewWithCause("Shutting down the server returning error", err))
+		}
 	}
 }

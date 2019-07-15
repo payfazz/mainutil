@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/payfazz/go-errors"
+	"github.com/payfazz/go-errors/errhandler"
 )
 
 // RunHTTPServer run *http.Server,
@@ -35,7 +36,7 @@ func RunHTTPServer(server *http.Server) {
 	select {
 	case err := <-serverErrCh:
 		signal.Reset(signals...)
-		errors.Fail(errors.Wrap(err))
+		errhandler.Fail(errors.Wrap(err))
 	case sig := <-signalChan:
 		signal.Reset(signals...)
 		waitFor := (1 * time.Minute) + (30 * time.Second)
@@ -46,7 +47,7 @@ func RunHTTPServer(server *http.Server) {
 		ctx, cancel := context.WithTimeout(context.Background(), waitFor)
 		defer cancel()
 		if err := server.Shutdown(ctx); err != nil {
-			errors.Fail(errors.NewWithCause("Shutting down the server returning error", err))
+			errhandler.Fail(errors.NewWithCause("Shutting down the server returning error", err))
 		}
 	}
 }

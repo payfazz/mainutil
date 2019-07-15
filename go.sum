@@ -1,5 +1,7 @@
 github.com/payfazz/go-errors v0.0.0-20190715182047-bbbeb54c877a h1:FEdxjEpm0O7Cekw5yzBxUHWElnJ7vGu7WKfr7BG2Twc=
 github.com/payfazz/go-errors v0.0.0-20190715182047-bbbeb54c877a/go.mod h1:r3pZyLA1i/ujbAQGUqIkx7/kRE8YIWyv9fwldSdEHBQ=
+github.com/payfazz/go-errors v0.0.0-20190715233455-16c545d38e45 h1:wxzxy981TuaB1bfIDwXViS/re8wwIoPT/EY0iw7D1FQ=
+github.com/payfazz/go-errors v0.0.0-20190715233455-16c545d38e45/go.mod h1:r3pZyLA1i/ujbAQGUqIkx7/kRE8YIWyv9fwldSdEHBQ=
 github.com/payfazz/go-oneliner v0.0.0-20190629104958-783fdaa365fa h1:r3/2vmsmg5oZiMO9OtLp4xbges5y1T5uG7QYXccgSuw=
 github.com/payfazz/go-oneliner v0.0.0-20190629104958-783fdaa365fa/go.mod h1:ZSb9i6cykubVVdDSE6uD07rL6TGUIqnzGFbN5MO+A5I=
 github.com/payfazz/go-oneliner v0.0.0-20190714093643-d3218d89c354 h1:XO38lqKtwF8YNOpHElo/qd/hN+p0SR3uRYj6Ky5JxVQ=

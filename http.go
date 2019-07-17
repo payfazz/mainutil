@@ -22,10 +22,10 @@ func RunHTTPServer(server *http.Server) {
 		defer close(serverErrCh)
 		if server.TLSConfig == nil {
 			Iprintf("Server listen on \"%s\"\n", server.Addr)
-			serverErrCh <- server.ListenAndServe()
+			serverErrCh <- errors.Wrap(server.ListenAndServe())
 		} else {
 			Iprintf("Server listen on TLS \"%s\"\n", server.Addr)
-			serverErrCh <- server.ListenAndServeTLS("", "")
+			serverErrCh <- errors.Wrap(server.ListenAndServeTLS("", ""))
 		}
 	}()
 
@@ -36,7 +36,7 @@ func RunHTTPServer(server *http.Server) {
 	select {
 	case err := <-serverErrCh:
 		signal.Reset(signals...)
-		errhandler.Fail(errors.Wrap(err))
+		errhandler.Fail(err)
 	case sig := <-signalChan:
 		signal.Reset(signals...)
 		waitFor := (1 * time.Minute) + (30 * time.Second)

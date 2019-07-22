@@ -10,6 +10,8 @@ import (
 
 	"github.com/payfazz/go-errors"
 	"github.com/payfazz/go-errors/errhandler"
+	"github.com/payfazz/go-middleware/common/kv"
+	"github.com/payfazz/go-middleware/common/paniclogger"
 )
 
 // RunHTTPServer run *http.Server,
@@ -49,5 +51,19 @@ func RunHTTPServer(server *http.Server) {
 		if err := server.Shutdown(ctx); err != nil {
 			errhandler.Fail(errors.NewWithCause("Shutting down the server returning error", err))
 		}
+	}
+}
+
+// CommonHTTPMiddlware .
+func CommonHTTPMiddlware() []func(http.HandlerFunc) http.HandlerFunc {
+	return []func(http.HandlerFunc) http.HandlerFunc{
+		paniclogger.New(0, func(ev paniclogger.Event) {
+			if err, ok := ev.Error.(error); ok {
+				Eprint(errors.Wrap(err))
+			} else {
+				Eprint(errors.Errorf("not an error panic: %v", ev.Error))
+			}
+		}),
+		kv.New(),
 	}
 }

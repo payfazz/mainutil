@@ -65,9 +65,9 @@ func CommonHTTPMiddlware(withOutLog bool) []func(http.HandlerFunc) http.HandlerF
 	return []func(http.HandlerFunc) http.HandlerFunc{
 		paniclogger.New(0, func(ev paniclogger.Event) {
 			if err, ok := ev.Error.(error); ok {
-				Eprint(errors.Wrap(err))
+				EprintTime(errors.Wrap(err))
 			} else {
-				Eprint(errors.Errorf("not an error panic: %v", ev.Error))
+				EprintTime(errors.Errorf("not an error panic: %v", ev.Error))
 			}
 		}),
 		kv.New(),

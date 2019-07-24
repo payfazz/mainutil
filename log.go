@@ -18,12 +18,12 @@ var (
 
 // Eprint print errors to stderr, comply with 12factor.net
 func Eprint(err error) {
-	Err.Print(errors.Format(err))
+	Err.Print(errors.Format(errors.Wrap(err)))
 }
 
 // EprintTime print errors to stderr, prefix it with UTC time, comply with 12factor.net
 func EprintTime(err error) {
-	Err.Print(time.Now().UTC(), ": ", errors.Format(err))
+	Err.Print(time.Now().UTC(), ": ", errors.Format(errors.Wrap(err)))
 }
 
 // Iprintf print information to stdout, comply with 12factor.net

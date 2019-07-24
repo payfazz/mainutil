@@ -10,7 +10,9 @@ import (
 
 	"github.com/payfazz/go-errors"
 	"github.com/payfazz/go-errors/errhandler"
+	"github.com/payfazz/go-middleware"
 	"github.com/payfazz/go-middleware/common/kv"
+	"github.com/payfazz/go-middleware/common/logger"
 	"github.com/payfazz/go-middleware/common/paniclogger"
 )
 
@@ -55,7 +57,11 @@ func RunHTTPServer(server *http.Server) {
 }
 
 // CommonHTTPMiddlware .
-func CommonHTTPMiddlware() []func(http.HandlerFunc) http.HandlerFunc {
+func CommonHTTPMiddlware(withOutLog bool) []func(http.HandlerFunc) http.HandlerFunc {
+	loggerMiddleware := middleware.Nop
+	if withOutLog {
+		loggerMiddleware = logger.NewWithDefaultLogger(Out)
+	}
 	return []func(http.HandlerFunc) http.HandlerFunc{
 		paniclogger.New(0, func(ev paniclogger.Event) {
 			if err, ok := ev.Error.(error); ok {
@@ -65,5 +71,6 @@ func CommonHTTPMiddlware() []func(http.HandlerFunc) http.HandlerFunc {
 			}
 		}),
 		kv.New(),
+		loggerMiddleware,
 	}
 }

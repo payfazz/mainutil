@@ -1,7 +1,7 @@
 github.com/payfazz/go-errors v0.0.0-20190724085815-71b77ca0f6f6 h1:6PWWN4R+cgzD4e0HJc8m4T4RUVLbD9CCl2tTzgLJ2TU=
 github.com/payfazz/go-errors v0.0.0-20190724085815-71b77ca0f6f6/go.mod h1:r3pZyLA1i/ujbAQGUqIkx7/kRE8YIWyv9fwldSdEHBQ=
-github.com/payfazz/go-middleware v0.0.0-20190711124645-a77340eda29d h1:ogQOvQTGlwlx/JHPx7D68F8mqx7/eqy4R23fNItEmZM=
-github.com/payfazz/go-middleware v0.0.0-20190711124645-a77340eda29d/go.mod h1:pGgGdE8OMjA0auJIXfMtJxSdiix2m8uA9P/fbGGwosE=
+github.com/payfazz/go-middleware v0.0.0-20190724094152-161f5f3ad10c h1:ohysweG2Q6waIT9ML1LXoS73tXw1B6mm/SNK/c9ZRYM=
+github.com/payfazz/go-middleware v0.0.0-20190724094152-161f5f3ad10c/go.mod h1:pGgGdE8OMjA0auJIXfMtJxSdiix2m8uA9P/fbGGwosE=
 github.com/payfazz/go-oneliner v0.0.0-20190714093643-d3218d89c354 h1:XO38lqKtwF8YNOpHElo/qd/hN+p0SR3uRYj6Ky5JxVQ=
 github.com/payfazz/go-oneliner v0.0.0-20190714093643-d3218d89c354/go.mod h1:ZSb9i6cykubVVdDSE6uD07rL6TGUIqnzGFbN5MO+A5I=
 github.com/payfazz/stdlog v0.0.0-20190715192008-3663b9d0f4e7 h1:m4ZfnceCTTKJ4TZZcTbyMhGXI7TrkYWsxsHk+Gg+h0w=

@@ -57,9 +57,9 @@ func RunHTTPServer(server *http.Server) {
 }
 
 // CommonHTTPMiddlware .
-func CommonHTTPMiddlware(withOutLog bool) []func(http.HandlerFunc) http.HandlerFunc {
+func CommonHTTPMiddlware(haveOutLog bool) []func(http.HandlerFunc) http.HandlerFunc {
 	loggerMiddleware := middleware.Nop
-	if withOutLog {
+	if haveOutLog {
 		loggerMiddleware = logger.NewWithDefaultLogger(Out)
 	}
 	return []func(http.HandlerFunc) http.HandlerFunc{

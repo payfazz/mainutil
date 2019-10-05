@@ -2,6 +2,7 @@ package mainutil
 
 import (
 	"context"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -33,6 +34,27 @@ func RunHTTPServer(server *http.Server) {
 		}
 	}()
 
+	waitHTTP(serverErrCh, server)
+}
+
+// RunHTTPServerOn .
+func RunHTTPServerOn(server *http.Server, listener net.Listener) {
+	serverErrCh := make(chan error, 1)
+	go func() {
+		defer close(serverErrCh)
+		if server.TLSConfig == nil {
+			Iprintf("Server listen on \"%s\"\n", listener.Addr())
+			serverErrCh <- errors.Wrap(server.Serve(listener))
+		} else {
+			Iprintf("Server listen on TLS \"%s\"\n", listener.Addr())
+			serverErrCh <- errors.Wrap(server.ServeTLS(listener, "", ""))
+		}
+	}()
+
+	waitHTTP(serverErrCh, server)
+}
+
+func waitHTTP(serverErrCh chan error, server *http.Server) {
 	signalChan := make(chan os.Signal, 1)
 	signals := []os.Signal{syscall.SIGTERM, syscall.SIGINT}
 	signal.Notify(signalChan, signals...)

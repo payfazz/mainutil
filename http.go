@@ -2,6 +2,7 @@ package mainutil
 
 import (
 	"context"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -95,4 +96,13 @@ func CommonHTTPMiddlware(haveOutLog bool) []func(http.HandlerFunc) http.HandlerF
 		kv.New(),
 		loggerMiddleware,
 	}
+}
+
+// DefaultHTTPServer .
+func DefaultHTTPServer() *http.Server {
+	ret := http.Server{
+		ReadHeaderTimeout: 3 * time.Second,
+		ErrorLog:          log.New(Err, "internal http error: ", 0),
+	}
+	return &ret
 }

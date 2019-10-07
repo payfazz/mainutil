@@ -16,6 +16,7 @@ import (
 	"github.com/payfazz/go-middleware/common/kv"
 	"github.com/payfazz/go-middleware/common/logger"
 	"github.com/payfazz/go-middleware/common/paniclogger"
+	"github.com/payfazz/stdlog"
 )
 
 // RunHTTPServer run *http.Server,
@@ -88,9 +89,9 @@ func CommonHTTPMiddlware(haveOutLog bool) []func(http.HandlerFunc) http.HandlerF
 	return []func(http.HandlerFunc) http.HandlerFunc{
 		paniclogger.New(0, func(ev paniclogger.Event) {
 			if err, ok := ev.Error.(error); ok {
-				EprintTime(errors.Wrap(err))
+				Eprint(errors.Wrap(err))
 			} else {
-				EprintTime(errors.Errorf("not an error panic: %v", ev.Error))
+				Eprint(errors.Errorf("not an error panic: %v", ev.Error))
 			}
 		}),
 		kv.New(),
@@ -102,7 +103,7 @@ func CommonHTTPMiddlware(haveOutLog bool) []func(http.HandlerFunc) http.HandlerF
 func DefaultHTTPServer() *http.Server {
 	ret := http.Server{
 		ReadHeaderTimeout: 3 * time.Second,
-		ErrorLog:          log.New(Err, "internal http error: ", 0),
+		ErrorLog:          log.New(stdlog.Err, "internal http error: ", log.LstdFlags|log.LUTC),
 	}
 	return &ret
 }

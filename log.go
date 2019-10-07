@@ -2,36 +2,31 @@ package mainutil
 
 import (
 	"fmt"
-	"time"
+	"log"
 
 	"github.com/payfazz/go-errors"
 	"github.com/payfazz/stdlog"
 )
 
 var (
-	// Out from stdlog.
-	Out = stdlog.Out
+	// Out to log to stdout
+	Out *log.Logger
 
-	// Err from stdlog.
-	Err = stdlog.Err
+	// Err to log to stderr
+	Err *log.Logger
 )
 
-// Eprint print errors to stderr, comply with 12factor.net
+func init() {
+	Out = log.New(stdlog.Out, "", log.LstdFlags|log.LUTC)
+	Err = log.New(stdlog.Err, "", log.LstdFlags|log.LUTC|log.Lshortfile)
+}
+
+// Eprint print errors to stderr
 func Eprint(err error) {
 	Err.Print(errors.Format(errors.Wrap(err)))
 }
 
-// EprintTime print errors to stderr, prefix it with UTC time, comply with 12factor.net
-func EprintTime(err error) {
-	Err.Print(time.Now().UTC(), ": ", errors.Format(errors.Wrap(err)))
-}
-
-// Iprintf print information to stdout, comply with 12factor.net
+// Iprintf print information to stdout
 func Iprintf(f string, v ...interface{}) {
 	Out.Print(fmt.Sprintf(f, v...))
-}
-
-// IprintfTime print information to stdout, prefix it with UTC time, comply with 12factor.net
-func IprintfTime(f string, v ...interface{}) {
-	Out.Print(time.Now().UTC(), ": ", fmt.Sprintf(f, v...))
 }

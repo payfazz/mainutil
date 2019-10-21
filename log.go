@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/payfazz/go-errors"
 	"github.com/payfazz/stdlog"
 )
 
@@ -21,9 +20,9 @@ func init() {
 	Err = log.New(stdlog.Err, "", log.LstdFlags|log.LUTC|log.Lshortfile)
 }
 
-// Eprint print errors to stderr
-func Eprint(err error) {
-	Err.Print(errors.Format(errors.Wrap(err)))
+// Eprintf print errors to stderr
+func Eprintf(f string, v ...interface{}) {
+	Err.Print(fmt.Sprintf(f, v...))
 }
 
 // Iprintf print information to stdout

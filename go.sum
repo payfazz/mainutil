@@ -4,5 +4,5 @@ github.com/payfazz/go-middleware v0.0.0-20191017154903-7b765bf8fb8e h1:ZDZ9qIbr9
 github.com/payfazz/go-middleware v0.0.0-20191017154903-7b765bf8fb8e/go.mod h1:N0hfc7Qz2XSsrmcBdMVzgpxFVoFhUZ/DrgTbYwMUpw4=
 github.com/payfazz/go-oneliner v0.0.0-20191021151439-af81e9ce6628 h1:rmw/zOH6xQSB95l4fRvoNyZIjbLLzeOrjJZzDvjMrL0=
 github.com/payfazz/go-oneliner v0.0.0-20191021151439-af81e9ce6628/go.mod h1:AkOiPXhnDBpU69/QWY2k6Shg3+bQAR981l4B3uGxCoQ=
-github.com/payfazz/stdlog v0.0.0-20191021152022-bba1a8af4236 h1:HGRwIYiw23jmS5ECCcuI3SXBp73CqGlApTfS3LUMkvo=
-github.com/payfazz/stdlog v0.0.0-20191021152022-bba1a8af4236/go.mod h1:hzNPSk+Sh7yq93B4Jz0pUUjgubPTKcoirfvJ4BHT9Ew=
+github.com/payfazz/stdlog v0.0.0-20191022070733-68e488dd388d h1:ANMrB4kxru+zlARTK+u3Uyl8rX5UxqherVA1GpPqde0=
+github.com/payfazz/stdlog v0.0.0-20191022070733-68e488dd388d/go.mod h1:hzNPSk+Sh7yq93B4Jz0pUUjgubPTKcoirfvJ4BHT9Ew=

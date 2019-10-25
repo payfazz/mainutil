@@ -64,7 +64,7 @@ func waitHTTP(serverErrCh chan error, server *http.Server) {
 	select {
 	case err := <-serverErrCh:
 		signal.Reset(signals...)
-		errhandler.Fail(errors.Wrap(err))
+		errhandler.Fail(errors.NewWithCause("listener goroutine got an error", errors.Wrap(err)))
 	case sig := <-signalChan:
 		signal.Reset(signals...)
 		waitFor := (1 * time.Minute) + (30 * time.Second)
@@ -75,7 +75,7 @@ func waitHTTP(serverErrCh chan error, server *http.Server) {
 		ctx, cancel := context.WithTimeout(context.Background(), waitFor)
 		defer cancel()
 		if err := server.Shutdown(ctx); err != nil {
-			errhandler.Fail(errors.NewWithCause("Shutting down the server returning error", err))
+			errhandler.Fail(errors.NewWithCause("Shutting down the server returning error", errors.Wrap(err)))
 		}
 	}
 }

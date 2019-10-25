@@ -1,8 +1,8 @@
-github.com/payfazz/go-errors v0.0.0-20191021152931-71b8b157ec18 h1:IvpxvocifF1fSLPNZO79J5gdUEAC1t/xX9/rUKd1pVM=
-github.com/payfazz/go-errors v0.0.0-20191021152931-71b8b157ec18/go.mod h1:0pfUhstdZUjwsGIvcOEn8hMWDiEZp4cgqGXfT16on6A=
-github.com/payfazz/go-middleware v0.0.0-20191017154903-7b765bf8fb8e h1:ZDZ9qIbr9Vpsqs5VpcKq1WWUsl9Z9mm3lct5BGPBuxc=
-github.com/payfazz/go-middleware v0.0.0-20191017154903-7b765bf8fb8e/go.mod h1:N0hfc7Qz2XSsrmcBdMVzgpxFVoFhUZ/DrgTbYwMUpw4=
+github.com/payfazz/go-errors v0.0.0-20191025073222-7d2b25ce9a2f h1:BCImsRNTGTtHmeIf5BgYxFgo5FnQSJIt7BMKSwfeHqk=
+github.com/payfazz/go-errors v0.0.0-20191025073222-7d2b25ce9a2f/go.mod h1:0pfUhstdZUjwsGIvcOEn8hMWDiEZp4cgqGXfT16on6A=
+github.com/payfazz/go-middleware v0.0.0-20191025070707-dc1340c0093e h1:+NOAuM4lw6gCbFwKVGXHlBVZKdm5faUZQRAtdbQMlds=
+github.com/payfazz/go-middleware v0.0.0-20191025070707-dc1340c0093e/go.mod h1:N0hfc7Qz2XSsrmcBdMVzgpxFVoFhUZ/DrgTbYwMUpw4=
 github.com/payfazz/go-oneliner v0.0.0-20191021151439-af81e9ce6628 h1:rmw/zOH6xQSB95l4fRvoNyZIjbLLzeOrjJZzDvjMrL0=
 github.com/payfazz/go-oneliner v0.0.0-20191021151439-af81e9ce6628/go.mod h1:AkOiPXhnDBpU69/QWY2k6Shg3+bQAR981l4B3uGxCoQ=
-github.com/payfazz/stdlog v0.0.0-20191022070733-68e488dd388d h1:ANMrB4kxru+zlARTK+u3Uyl8rX5UxqherVA1GpPqde0=
-github.com/payfazz/stdlog v0.0.0-20191022070733-68e488dd388d/go.mod h1:hzNPSk+Sh7yq93B4Jz0pUUjgubPTKcoirfvJ4BHT9Ew=
+github.com/payfazz/stdlog v0.0.0-20191025080228-c8dfe91aa6ce h1:D6TbvyR3h7/GL1mjQ0B3AjhdJ4b0yory9eLEaYQo+wQ=
+github.com/payfazz/stdlog v0.0.0-20191025080228-c8dfe91aa6ce/go.mod h1:hzNPSk+Sh7yq93B4Jz0pUUjgubPTKcoirfvJ4BHT9Ew=

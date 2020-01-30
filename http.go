@@ -87,21 +87,21 @@ func (env *Env) RunHTTPServerOn(
 
 func (env *Env) runHTTPServerOnDefaultListener(s *http.Server) error {
 	if s.TLSConfig != nil {
-		env.info().Print("Server listen on TLS \"%s\"\n", s.Addr)
+		env.info().Print(fmt.Sprintf("Server listen on TLS \"%s\"\n", s.Addr))
 		return errors.Wrap(s.ListenAndServeTLS("", ""))
 	}
 
-	env.info().Print("Server listen on \"%s\"\n", s.Addr)
+	env.info().Print(fmt.Sprintf("Server listen on \"%s\"\n", s.Addr))
 	return errors.Wrap(s.ListenAndServe())
 }
 
 func (env *Env) runHTTPServerOnListener(s *http.Server, l net.Listener) error {
 	if s.TLSConfig != nil {
-		env.info().Print("Server listen on TLS \"%s\"\n", l.Addr().String())
+		env.info().Print(fmt.Sprintf("Server listen on TLS \"%s\"\n", l.Addr().String()))
 		return errors.Wrap(s.ServeTLS(l, "", ""))
 	}
 
-	env.info().Print("Server listen on \"%s\"\n", l.Addr().String())
+	env.info().Print(fmt.Sprintf("Server listen on \"%s\"\n", l.Addr().String()))
 	return errors.Wrap(s.Serve(l))
 }
 

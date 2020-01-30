@@ -2,96 +2,48 @@ package mainutil
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/payfazz/go-errors"
-	"github.com/payfazz/go-errors/errhandler"
 	"github.com/payfazz/go-middleware"
 	"github.com/payfazz/go-middleware/common/kv"
 	"github.com/payfazz/go-middleware/common/logger"
 	"github.com/payfazz/go-middleware/common/paniclogger"
-	"github.com/payfazz/stdlog"
 )
 
-// RunHTTPServer run *http.Server,
-// when SIGTERM or SIGINT is recieved graceful shutdown the server.
-//
-// github.com/payfazz/go-errors/errhandler.With must be already defered.
-func RunHTTPServer(server *http.Server) {
-	serverErrCh := make(chan error, 1)
-	go func() {
-		defer close(serverErrCh)
-		if server.TLSConfig == nil {
-			Iprintf("Server listen on \"%s\"\n", server.Addr)
-			serverErrCh <- errors.Wrap(server.ListenAndServe())
-		} else {
-			Iprintf("Server listen on TLS \"%s\"\n", server.Addr)
-			serverErrCh <- errors.Wrap(server.ListenAndServeTLS("", ""))
-		}
-	}()
-
-	waitHTTP(serverErrCh, server)
+// SetDefaultForHTTP .
+func (env *Env) SetDefaultForHTTP(s *http.Server) {
+	s.ReadTimeout = 1 * time.Minute
+	s.WriteTimeout = 1 * time.Minute
+	s.ErrorLog = log.New(env.err(), "internal http error: ", log.LstdFlags|log.LUTC)
 }
 
-// RunHTTPServerOn .
-func RunHTTPServerOn(server *http.Server, listener net.Listener) {
-	serverErrCh := make(chan error, 1)
-	go func() {
-		defer close(serverErrCh)
-		if server.TLSConfig == nil {
-			Iprintf("Server listen on \"%s\"\n", listener.Addr())
-			serverErrCh <- errors.Wrap(server.Serve(listener))
-		} else {
-			Iprintf("Server listen on TLS \"%s\"\n", listener.Addr())
-			serverErrCh <- errors.Wrap(server.ServeTLS(listener, "", ""))
-		}
-	}()
-
-	waitHTTP(serverErrCh, server)
-}
-
-func waitHTTP(serverErrCh chan error, server *http.Server) {
-	signalChan := make(chan os.Signal, 1)
-	signals := []os.Signal{syscall.SIGTERM, syscall.SIGINT}
-	signal.Notify(signalChan, signals...)
-
-	select {
-	case err := <-serverErrCh:
-		signal.Reset(signals...)
-		errhandler.Check(errors.NewWithCause("listener goroutine got an error", errors.Wrap(err)))
-	case sig := <-signalChan:
-		signal.Reset(signals...)
-		waitFor := (1 * time.Minute) + (30 * time.Second)
-		Iprintf(
-			"Got '%s' signal, Shutting down the server (Waiting for graceful shutdown: %s)\n",
-			sig.String(), waitFor.String(),
-		)
-		ctx, cancel := context.WithTimeout(context.Background(), waitFor)
-		defer cancel()
-		if err := server.Shutdown(ctx); err != nil {
-			errhandler.Check(errors.NewWithCause("Shutting down the server returning error", errors.Wrap(err)))
-		}
-	}
+// DefaultHTTPServer .
+func (env *Env) DefaultHTTPServer(addr string, handler http.HandlerFunc) *http.Server {
+	s := http.Server{}
+	env.SetDefaultForHTTP(&s)
+	s.Addr = addr
+	s.Handler = handler
+	return &s
 }
 
 // CommonHTTPMiddlware .
-func CommonHTTPMiddlware(haveOutLog bool) []func(http.HandlerFunc) http.HandlerFunc {
+func (env *Env) CommonHTTPMiddlware(haveOutLog bool) []func(http.HandlerFunc) http.HandlerFunc {
 	loggerMiddleware := middleware.Nop
 	if haveOutLog {
-		loggerMiddleware = logger.NewWithDefaultLogger(Out)
+		loggerMiddleware = logger.NewWithDefaultLogger(env.info())
 	}
+	logger := log.New(env.err(), "unhandled panic: ", log.LstdFlags|log.LUTC)
 	return []func(http.HandlerFunc) http.HandlerFunc{
 		paniclogger.New(0, func(ev paniclogger.Event) {
 			if err, ok := ev.Error.(error); ok {
-				errors.PrintTo(Err, errors.Wrap(err))
+				errors.PrintTo(logger, errors.Wrap(err))
 			} else {
-				errors.PrintTo(Err, errors.Errorf("not an error panic: %v", ev.Error))
+				errors.PrintTo(logger, errors.Errorf("not an error panic: %v", ev.Error))
 			}
 		}),
 		kv.New(),
@@ -99,11 +51,63 @@ func CommonHTTPMiddlware(haveOutLog bool) []func(http.HandlerFunc) http.HandlerF
 	}
 }
 
-// DefaultHTTPServer .
-func DefaultHTTPServer() *http.Server {
-	ret := http.Server{
-		ReadHeaderTimeout: 3 * time.Second,
-		ErrorLog:          log.New(stdlog.Err, "internal http error: ", log.LstdFlags|log.LUTC),
+// RunHTTPServerOn .
+func (env *Env) RunHTTPServerOn(
+	ctx context.Context,
+	s *http.Server,
+	l net.Listener,
+	gracefulShutdown time.Duration,
+) error {
+	serverErrCh := make(chan error, 1)
+	go func() {
+		defer close(serverErrCh)
+		if l == nil {
+			serverErrCh <- env.runHTTPServerOnDefaultListener(s)
+		} else {
+			serverErrCh <- env.runHTTPServerOnListener(s, l)
+		}
+	}()
+
+	select {
+	case err := <-serverErrCh:
+		return errors.Wrap(err)
+	case <-ctx.Done():
+		if gracefulShutdown == 0 {
+			gracefulShutdown = max(s.ReadTimeout, s.WriteTimeout)
+		}
+		shutdownCtx, cancel := context.WithTimeout(ctx, gracefulShutdown)
+		defer cancel()
+		env.info().Print(fmt.Sprintf(
+			"Shutting down the server (Waiting for graceful shutdown: %s)\n",
+			gracefulShutdown.String(),
+		))
+		return errors.Wrap(s.Shutdown(shutdownCtx))
 	}
-	return &ret
+}
+
+func (env *Env) runHTTPServerOnDefaultListener(s *http.Server) error {
+	if s.TLSConfig != nil {
+		env.info().Print("Server listen on TLS \"%s\"\n", s.Addr)
+		return errors.Wrap(s.ListenAndServeTLS("", ""))
+	}
+
+	env.info().Print("Server listen on \"%s\"\n", s.Addr)
+	return errors.Wrap(s.ListenAndServe())
+}
+
+func (env *Env) runHTTPServerOnListener(s *http.Server, l net.Listener) error {
+	if s.TLSConfig != nil {
+		env.info().Print("Server listen on TLS \"%s\"\n", l.Addr().String())
+		return errors.Wrap(s.ServeTLS(l, "", ""))
+	}
+
+	env.info().Print("Server listen on \"%s\"\n", l.Addr().String())
+	return errors.Wrap(s.Serve(l))
+}
+
+func max(a, b time.Duration) time.Duration {
+	if a > b {
+		return a
+	}
+	return b
 }

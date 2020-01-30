@@ -75,6 +75,9 @@ func (env *Env) RunHTTPServerOn(
 		if gracefulShutdown == 0 {
 			gracefulShutdown = max(s.ReadTimeout, s.WriteTimeout)
 		}
+		if gracefulShutdown == 0 {
+			gracefulShutdown = 1 * time.Minute
+		}
 		shutdownCtx, cancel := context.WithTimeout(ctx, gracefulShutdown)
 		defer cancel()
 		env.info().Print(fmt.Sprintf(

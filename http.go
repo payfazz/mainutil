@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/payfazz/go-errors"
+	"github.com/payfazz/go-errors/errhandler"
 	"github.com/payfazz/go-middleware"
 	"github.com/payfazz/go-middleware/common/logger"
 	"github.com/payfazz/go-middleware/common/paniclogger"
@@ -43,7 +44,7 @@ func (env *Env) CommonHTTPMiddlware(haveOutLog bool) []func(http.HandlerFunc) ht
 	return []func(http.HandlerFunc) http.HandlerFunc{
 		paniclogger.New(0, func(ev paniclogger.Event) {
 			if err, ok := ev.Error.(error); ok {
-				errors.PrintTo(errLogger, errors.Wrap(err))
+				errors.PrintTo(errLogger, errors.Wrap(errhandler.UnwrapUnhandledError(err)))
 			} else {
 				errors.PrintTo(errLogger, errors.Errorf("non error panic: %v", ev.Error))
 			}

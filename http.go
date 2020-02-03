@@ -78,11 +78,12 @@ func (env *Env) RunHTTPServerOn(
 		if gracefulShutdown == 0 {
 			gracefulShutdown = 1 * time.Minute
 		}
+		gracefulShutdown += 500 * time.Millisecond
 		shutdownCtx, cancel := context.WithTimeout(ctx, gracefulShutdown)
 		defer cancel()
 		env.info().Print(fmt.Sprintf(
 			"Shutting down the server (Waiting for graceful shutdown: %s)\n",
-			gracefulShutdown.String(),
+			gracefulShutdown.Truncate(time.Second).String(),
 		))
 		return errors.Wrap(s.Shutdown(shutdownCtx))
 	}

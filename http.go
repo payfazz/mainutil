@@ -10,7 +10,6 @@ import (
 
 	"github.com/payfazz/go-errors"
 	"github.com/payfazz/go-middleware"
-	"github.com/payfazz/go-middleware/common/kv"
 	"github.com/payfazz/go-middleware/common/logger"
 	"github.com/payfazz/go-middleware/common/paniclogger"
 )
@@ -34,21 +33,22 @@ func (env *Env) DefaultHTTPServer(addr string, handler http.HandlerFunc) *http.S
 
 // CommonHTTPMiddlware .
 func (env *Env) CommonHTTPMiddlware(haveOutLog bool) []func(http.HandlerFunc) http.HandlerFunc {
-	loggerMiddleware := middleware.Nop
+	requestLogger := middleware.Nop
 	if haveOutLog {
-		loggerMiddleware = logger.NewWithDefaultLogger(env.InfoLogger())
+		requestLogger = logger.NewWithDefaultLogger(env.InfoLogger())
 	}
-	logger := log.New(env.ErrLogger(), "unhandled panic: ", log.LstdFlags|log.LUTC)
+
+	errLogger := log.New(env.ErrLogger(), "unhandled panic: ", log.LstdFlags|log.LUTC)
+
 	return []func(http.HandlerFunc) http.HandlerFunc{
 		paniclogger.New(0, func(ev paniclogger.Event) {
 			if err, ok := ev.Error.(error); ok {
-				errors.PrintTo(logger, errors.Wrap(err))
+				errors.PrintTo(errLogger, errors.Wrap(err))
 			} else {
-				errors.PrintTo(logger, errors.Errorf("not an error panic: %v", ev.Error))
+				errors.PrintTo(errLogger, errors.Errorf("non error panic: %v", ev.Error))
 			}
 		}),
-		kv.New(),
-		loggerMiddleware,
+		requestLogger,
 	}
 }
 

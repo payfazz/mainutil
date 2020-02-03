@@ -19,6 +19,11 @@ func (env *Env) InfoLogger() *stdlog.Logger {
 	return stdlog.Out
 }
 
+// PrintInfo .
+func (env *Env) PrintInfo(v ...interface{}) {
+	env.InfoLogger().Print(v...)
+}
+
 // ErrLogger .
 func (env *Env) ErrLogger() *stdlog.Logger {
 	if env != nil && env.Err != nil {
@@ -26,4 +31,9 @@ func (env *Env) ErrLogger() *stdlog.Logger {
 	}
 
 	return stdlog.Err
+}
+
+// PrintErr .
+func (env *Env) PrintErr(v ...interface{}) {
+	env.ErrLogger().Print(v...)
 }

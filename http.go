@@ -23,6 +23,18 @@ func (env *Env) SetDefaultForHTTP(s *http.Server) {
 	s.ErrorLog = log.New(env.ErrLogger(), "internal http error: ", log.LstdFlags|log.LUTC)
 }
 
+// SetHTTPTLSConfig .
+func (env *Env) SetHTTPTLSConfig(s *http.Server, certfile string, keyfil string) error {
+	tls, err := env.DefaultTLSConfig(certfile, keyfil)
+	if err != nil {
+		return errors.Wrap(err)
+	}
+	tls.NextProtos = []string{"h2", "http/1.1"}
+	s.TLSConfig = tls
+
+	return nil
+}
+
 // DefaultHTTPServer .
 func (env *Env) DefaultHTTPServer(addr string, handler http.HandlerFunc) *http.Server {
 	s := http.Server{}

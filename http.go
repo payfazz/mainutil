@@ -19,6 +19,7 @@ import (
 func (env *Env) SetDefaultForHTTP(s *http.Server) {
 	s.ReadTimeout = 1 * time.Minute
 	s.WriteTimeout = 1 * time.Minute
+	s.IdleTimeout = 30 * time.Second
 	s.ErrorLog = log.New(env.err(), "internal http error: ", log.LstdFlags|log.LUTC)
 }
 

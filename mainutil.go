@@ -10,7 +10,8 @@ type Env struct {
 	Err  *stdlog.Logger
 }
 
-func (env *Env) info() *stdlog.Logger {
+// InfoLogger .
+func (env *Env) InfoLogger() *stdlog.Logger {
 	if env != nil && env.Info != nil {
 		return env.Info
 	}
@@ -18,7 +19,8 @@ func (env *Env) info() *stdlog.Logger {
 	return stdlog.Out
 }
 
-func (env *Env) err() *stdlog.Logger {
+// ErrLogger .
+func (env *Env) ErrLogger() *stdlog.Logger {
 	if env != nil && env.Err != nil {
 		return env.Err
 	}

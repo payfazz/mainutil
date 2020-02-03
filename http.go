@@ -20,7 +20,7 @@ func (env *Env) SetDefaultForHTTP(s *http.Server) {
 	s.ReadTimeout = 1 * time.Minute
 	s.WriteTimeout = 1 * time.Minute
 	s.IdleTimeout = 30 * time.Second
-	s.ErrorLog = log.New(env.err(), "internal http error: ", log.LstdFlags|log.LUTC)
+	s.ErrorLog = log.New(env.ErrLogger(), "internal http error: ", log.LstdFlags|log.LUTC)
 }
 
 // DefaultHTTPServer .
@@ -36,9 +36,9 @@ func (env *Env) DefaultHTTPServer(addr string, handler http.HandlerFunc) *http.S
 func (env *Env) CommonHTTPMiddlware(haveOutLog bool) []func(http.HandlerFunc) http.HandlerFunc {
 	loggerMiddleware := middleware.Nop
 	if haveOutLog {
-		loggerMiddleware = logger.NewWithDefaultLogger(env.info())
+		loggerMiddleware = logger.NewWithDefaultLogger(env.InfoLogger())
 	}
-	logger := log.New(env.err(), "unhandled panic: ", log.LstdFlags|log.LUTC)
+	logger := log.New(env.ErrLogger(), "unhandled panic: ", log.LstdFlags|log.LUTC)
 	return []func(http.HandlerFunc) http.HandlerFunc{
 		paniclogger.New(0, func(ev paniclogger.Event) {
 			if err, ok := ev.Error.(error); ok {
@@ -82,7 +82,7 @@ func (env *Env) RunHTTPServerOn(
 		gracefulShutdown += 500 * time.Millisecond
 		shutdownCtx, cancel := context.WithTimeout(ctx, gracefulShutdown)
 		defer cancel()
-		env.info().Print(fmt.Sprintf(
+		env.InfoLogger().Print(fmt.Sprintf(
 			"Shutting down the server (Waiting for graceful shutdown: %s)\n",
 			gracefulShutdown.Truncate(time.Second).String(),
 		))
@@ -92,21 +92,21 @@ func (env *Env) RunHTTPServerOn(
 
 func (env *Env) runHTTPServerOnDefaultListener(s *http.Server) error {
 	if s.TLSConfig != nil {
-		env.info().Print(fmt.Sprintf("Server listen on TLS \"%s\"\n", s.Addr))
+		env.InfoLogger().Print(fmt.Sprintf("Server listen on TLS \"%s\"\n", s.Addr))
 		return errors.Wrap(s.ListenAndServeTLS("", ""))
 	}
 
-	env.info().Print(fmt.Sprintf("Server listen on \"%s\"\n", s.Addr))
+	env.InfoLogger().Print(fmt.Sprintf("Server listen on \"%s\"\n", s.Addr))
 	return errors.Wrap(s.ListenAndServe())
 }
 
 func (env *Env) runHTTPServerOnListener(s *http.Server, l net.Listener) error {
 	if s.TLSConfig != nil {
-		env.info().Print(fmt.Sprintf("Server listen on TLS \"%s\"\n", l.Addr().String()))
+		env.InfoLogger().Print(fmt.Sprintf("Server listen on TLS \"%s\"\n", l.Addr().String()))
 		return errors.Wrap(s.ServeTLS(l, "", ""))
 	}
 
-	env.info().Print(fmt.Sprintf("Server listen on \"%s\"\n", l.Addr().String()))
+	env.InfoLogger().Print(fmt.Sprintf("Server listen on \"%s\"\n", l.Addr().String()))
 	return errors.Wrap(s.Serve(l))
 }
 

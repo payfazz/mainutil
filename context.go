@@ -15,7 +15,7 @@ func (env *Env) CancelOnInteruptSignal(cancel context.CancelFunc) {
 		sig := <-c
 		signal.Stop(c)
 
-		env.info().Print(fmt.Sprintf("Got signal %s\n", sig.String()))
+		env.InfoLogger().Print(fmt.Sprintf("Got signal %s\n", sig.String()))
 		cancel()
 	}()
 }

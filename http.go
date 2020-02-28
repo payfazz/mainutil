@@ -76,15 +76,18 @@ func (env *Env) RunHTTPServerOn(
 	go func() {
 		defer close(serverErrCh)
 		if l == nil {
-			serverErrCh <- env.runHTTPServerOnDefaultListener(s)
+			serverErrCh <- errors.Wrap(env.runHTTPServerOnDefaultListener(s))
 		} else {
-			serverErrCh <- env.runHTTPServerOnListener(s, l)
+			serverErrCh <- errors.Wrap(env.runHTTPServerOnListener(s, l))
 		}
 	}()
 
 	select {
 	case err := <-serverErrCh:
-		return errors.Wrap(err)
+		if err != nil {
+			return errors.Wrap(err)
+		}
+		return nil
 	case <-ctx.Done():
 		if gracefulShutdown == 0 {
 			gracefulShutdown = max(s.ReadTimeout, s.WriteTimeout)
@@ -92,35 +95,50 @@ func (env *Env) RunHTTPServerOn(
 		if gracefulShutdown == 0 {
 			gracefulShutdown = 1 * time.Minute
 		}
-		gracefulShutdown += 500 * time.Millisecond
+		gracefulShutdown += 500 * time.Millisecond // give more 0.5 second for cleanup
 		shutdownCtx, cancel := context.WithTimeout(ctx, gracefulShutdown)
 		defer cancel()
 		env.InfoLogger().Print(fmt.Sprintf(
 			"Shutting down the server (Waiting for graceful shutdown: %s)\n",
 			gracefulShutdown.Truncate(time.Second).String(),
 		))
-		return errors.Wrap(s.Shutdown(shutdownCtx))
+		if err := s.Shutdown(shutdownCtx); err != nil {
+			return errors.Wrap(err)
+		}
+		return nil
 	}
 }
 
 func (env *Env) runHTTPServerOnDefaultListener(s *http.Server) error {
 	if s.TLSConfig != nil {
 		env.InfoLogger().Print(fmt.Sprintf("Server listen on TLS \"%s\"\n", s.Addr))
-		return errors.Wrap(s.ListenAndServeTLS("", ""))
+		if err := s.ListenAndServeTLS("", ""); err != nil {
+			return errors.Wrap(err)
+		}
+		return nil
 	}
 
 	env.InfoLogger().Print(fmt.Sprintf("Server listen on \"%s\"\n", s.Addr))
-	return errors.Wrap(s.ListenAndServe())
+	if err := s.ListenAndServe(); err != nil {
+		return errors.Wrap(err)
+	}
+	return nil
 }
 
 func (env *Env) runHTTPServerOnListener(s *http.Server, l net.Listener) error {
 	if s.TLSConfig != nil {
 		env.InfoLogger().Print(fmt.Sprintf("Server listen on TLS \"%s\"\n", l.Addr().String()))
-		return errors.Wrap(s.ServeTLS(l, "", ""))
+		if err := s.ServeTLS(l, "", ""); err != nil {
+			errors.Wrap(err)
+		}
+		return nil
 	}
 
 	env.InfoLogger().Print(fmt.Sprintf("Server listen on \"%s\"\n", l.Addr().String()))
-	return errors.Wrap(s.Serve(l))
+	if err := s.Serve(l); err != nil {
+		return errors.Wrap(err)
+	}
+	return nil
 }
 
 func max(a, b time.Duration) time.Duration {

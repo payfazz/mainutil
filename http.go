@@ -96,7 +96,7 @@ func (env *Env) RunHTTPServerOn(
 			gracefulShutdown = 1 * time.Minute
 		}
 		gracefulShutdown += 500 * time.Millisecond // give more 0.5 second for cleanup
-		shutdownCtx, cancel := context.WithTimeout(ctx, gracefulShutdown)
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), gracefulShutdown)
 		defer cancel()
 		env.InfoLogger().Print(fmt.Sprintf(
 			"Shutting down the server (Waiting for graceful shutdown: %s)\n",

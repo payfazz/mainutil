@@ -12,22 +12,22 @@ import (
 )
 
 // ListenUnixSocket .
-func (env *Env) ListenUnixSocket(path string) (net.Listener, func(context.Context), error) {
+func ListenUnixSocket(path string) (listener net.Listener, cleanUpFunc func(context.Context), err error) {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return nil, nil, errors.Wrap(err)
 	}
 
-	l, err := net.Listen("unix", absPath)
+	listener, err = net.Listen("unix", absPath)
 	if err != nil {
 		return nil, nil, errors.Wrap(err)
 	}
 
-	cleanUpFunc := func(ctx context.Context) {
+	cleanUpFunc = func(ctx context.Context) {
 		<-ctx.Done()
-		l.Close()
-		os.RemoveAll(absPath)
+		os.Remove(absPath)
+		listener.Close()
 	}
 
-	return l, cleanUpFunc, nil
+	return listener, cleanUpFunc, nil
 }

@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+
+	"github.com/payfazz/stdlog"
 )
 
 // WaitForInterruptThenCancelContext .
-func (env *Env) WaitForInterruptThenCancelContext(ctx context.Context, cancel context.CancelFunc) {
+func WaitForInterruptThenCancelContext(ctx context.Context, cancel context.CancelFunc) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, getInterruptSigs()...)
 
@@ -20,7 +22,7 @@ func (env *Env) WaitForInterruptThenCancelContext(ctx context.Context, cancel co
 
 	signal.Stop(c)
 	if sig != nil {
-		env.InfoLogger().Print(fmt.Sprintf("Got signal %s\n", sig.String()))
+		stdlog.PrintOut(fmt.Sprintf("Got signal %s\n", sig.String()))
 	}
 
 	cancel()

@@ -3,7 +3,6 @@ package mainutil
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"time"
@@ -22,7 +21,7 @@ func HTTPSetDefault(s *http.Server) {
 	s.ReadTimeout = 1 * time.Minute
 	s.WriteTimeout = 1 * time.Minute
 	s.IdleTimeout = 30 * time.Second
-	s.ErrorLog = log.New(stdlog.Err(), "net/http.Server.ErrorLog: ", log.LstdFlags|log.LUTC)
+	s.ErrorLog = stdlog.New2(stdlog.Err(), "net/http.Server.ErrorLog: ").AsLogger()
 }
 
 // HTTPSetTLS .

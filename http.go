@@ -7,13 +7,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/payfazz/stdlog"
-
 	"github.com/payfazz/go-errors"
 	"github.com/payfazz/go-errors/errhandler"
 	"github.com/payfazz/go-middleware"
 	"github.com/payfazz/go-middleware/common/logger"
 	"github.com/payfazz/go-middleware/common/paniclogger"
+	"github.com/payfazz/stdlog"
 )
 
 // HTTPSetDefault .
@@ -21,12 +20,12 @@ func HTTPSetDefault(s *http.Server) {
 	s.ReadTimeout = 1 * time.Minute
 	s.WriteTimeout = 1 * time.Minute
 	s.IdleTimeout = 30 * time.Second
-	s.ErrorLog = stdlog.New2(stdlog.Err(), "net/http.Server.ErrorLog: ").AsLogger()
+	s.ErrorLog = stdlog.NewFromEnv(stdlog.Err(), "net/http.Server.ErrorLog: ").AsLogger()
 }
 
 // HTTPSetTLS .
-func HTTPSetTLS(s *http.Server, certfile string, keyfil string) error {
-	tls, err := DefaultTLSConfig(certfile, keyfil)
+func HTTPSetTLS(s *http.Server, certfile string, keyfile string) error {
+	tls, err := DefaultTLSConfig(certfile, keyfile)
 	if err != nil {
 		return errors.Wrap(err)
 	}
@@ -85,12 +84,19 @@ func RunHTTPServerOn(
 	select {
 	case err := <-serverErrCh:
 		if err != nil {
-			return errors.Wrap(err)
+			return errors.NewWithCause("Fail to run server", err)
 		}
 		return nil
 	case <-ctx.Done():
+		maxDuration := func(a, b time.Duration) time.Duration {
+			if a > b {
+				return a
+			}
+			return b
+		}
+
 		if gracefulShutdown == 0 {
-			gracefulShutdown = max(s.ReadTimeout, s.WriteTimeout)
+			gracefulShutdown = maxDuration(s.ReadTimeout, s.WriteTimeout)
 		}
 		if gracefulShutdown == 0 {
 			gracefulShutdown = 1 * time.Minute
@@ -102,9 +108,7 @@ func RunHTTPServerOn(
 			"Shutting down the server (Waiting for graceful shutdown: %s)\n",
 			gracefulShutdown.Truncate(time.Second).String(),
 		))
-		if err := s.Shutdown(shutdownCtx); err != nil {
-			return errors.Wrap(err)
-		}
+		s.Shutdown(shutdownCtx)
 		return nil
 	}
 }
@@ -139,11 +143,4 @@ func runHTTPServerOnListener(s *http.Server, l net.Listener) error {
 		return errors.Wrap(err)
 	}
 	return nil
-}
-
-func max(a, b time.Duration) time.Duration {
-	if a > b {
-		return a
-	}
-	return b
 }

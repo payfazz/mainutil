@@ -3,7 +3,6 @@
 package mainutil
 
 import (
-	"context"
 	"net"
 	"os"
 	"path/filepath"
@@ -12,22 +11,26 @@ import (
 )
 
 // ListenUnixSocket .
-func ListenUnixSocket(path string) (listener net.Listener, cleanUpFunc func(context.Context), err error) {
+func ListenUnixSocket(path string) (listener net.Listener, err error) {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
-		return nil, nil, errors.Wrap(err)
+		return nil, errors.Wrap(err)
 	}
 
 	listener, err = net.Listen("unix", absPath)
 	if err != nil {
-		return nil, nil, errors.Wrap(err)
+		return nil, errors.Wrap(err)
 	}
 
-	cleanUpFunc = func(ctx context.Context) {
-		<-ctx.Done()
-		os.Remove(absPath)
-		listener.Close()
-	}
+	return &unixSocketWrapper{absPath: absPath, Listener: listener}, nil
+}
 
-	return listener, cleanUpFunc, nil
+type unixSocketWrapper struct {
+	absPath string
+	net.Listener
+}
+
+func (u *unixSocketWrapper) Close() error {
+	os.RemoveAll(u.absPath)
+	return u.Listener.Close()
 }

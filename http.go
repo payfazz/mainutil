@@ -10,6 +10,7 @@ import (
 	"github.com/payfazz/go-errors"
 	"github.com/payfazz/go-errors/errhandler"
 	"github.com/payfazz/go-middleware"
+	"github.com/payfazz/go-middleware/common/kv"
 	"github.com/payfazz/go-middleware/common/logger"
 	"github.com/payfazz/go-middleware/common/paniclogger"
 	"github.com/payfazz/stdlog"
@@ -60,6 +61,7 @@ func CommonHTTPMiddlware(printRequestLog bool) []func(http.HandlerFunc) http.Han
 				errors.PrintTo(stdlog.Err(), errors.Errorf("non-error-type: %v", ev.Error))
 			}
 		}),
+		kv.New(),
 		reqLoggerMiddleware,
 	}
 }

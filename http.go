@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/payfazz/go-errors"
-	"github.com/payfazz/go-errors/errhandler"
 	"github.com/payfazz/go-middleware"
 	"github.com/payfazz/go-middleware/common/logger"
 	"github.com/payfazz/go-middleware/common/paniclogger"
@@ -55,7 +54,7 @@ func CommonHTTPMiddlware(printRequestLog bool) []func(http.HandlerFunc) http.Han
 	return []func(http.HandlerFunc) http.HandlerFunc{
 		paniclogger.New(0, func(ev paniclogger.Event) {
 			if err, ok := ev.Error.(error); ok {
-				errors.PrintTo(stdlog.Err(), errors.Wrap(errhandler.UnwrapUnhandledError(err)))
+				errors.PrintTo(stdlog.Err(), errors.Wrap(err))
 			} else {
 				errors.PrintTo(stdlog.Err(), errors.Errorf("non-error-type: %v", ev.Error))
 			}

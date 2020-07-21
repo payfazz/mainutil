@@ -56,7 +56,7 @@ func CommonHTTPMiddlware(printRequestLog bool) []func(http.HandlerFunc) http.Han
 			if err, ok := ev.Error.(error); ok {
 				errors.PrintTo(stdlog.Err(), errors.Wrap(err))
 			} else {
-				errors.PrintTo(stdlog.Err(), errors.Errorf("non-error-type: %v", ev.Error))
+				errors.PrintTo(stdlog.Err(), errors.Errorf("unknown error: %v", ev.Error))
 			}
 		}),
 		reqLoggerMiddleware,
@@ -107,7 +107,11 @@ func RunHTTPServerOn(
 			"Shutting down the server (Waiting for graceful shutdown: %s)\n",
 			gracefulShutdown.Truncate(time.Second).String(),
 		))
-		s.Shutdown(shutdownCtx)
+		if err := s.Shutdown(shutdownCtx); err != nil {
+			errors.PrintTo(stdlog.Err(),
+				errors.NewWithCause("fail to graceful shutdown", err),
+			)
+		}
 		return nil
 	}
 }

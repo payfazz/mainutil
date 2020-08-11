@@ -103,8 +103,13 @@ func RunHTTPServerOn(
 		gracefulShutdown += 500 * time.Millisecond // give more 0.5 second for cleanup
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), gracefulShutdown)
 		defer cancel()
+		serverAddr := s.Addr
+		if l != nil {
+			serverAddr = l.Addr().String()
+		}
 		stdlog.PrintOut(fmt.Sprintf(
-			"Shutting down the server (Waiting for graceful shutdown: %s)\n",
+			"Shutting down the server \"%s\" (Waiting for graceful shutdown: %s)\n",
+			serverAddr,
 			gracefulShutdown.Truncate(time.Second).String(),
 		))
 		if err := s.Shutdown(shutdownCtx); err != nil {

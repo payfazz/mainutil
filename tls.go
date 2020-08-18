@@ -34,6 +34,8 @@ func DefaultTLSConfig(certfile, keyfile string) (*tls.Config, error) {
 		CurvePreferences: []tls.CurveID{
 			tls.X25519,
 			tls.CurveP256,
+			tls.CurveP521,
+			tls.CurveP384,
 		},
 	}, nil
 }

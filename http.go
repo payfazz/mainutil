@@ -14,14 +14,6 @@ import (
 	"github.com/payfazz/stdlog"
 )
 
-// HTTPSetDefault .
-func HTTPSetDefault(s *http.Server) {
-	s.ReadTimeout = 1 * time.Minute
-	s.WriteTimeout = 1 * time.Minute
-	s.IdleTimeout = 30 * time.Second
-	s.ErrorLog = stdlog.NewFromEnv(stdlog.Err(), "net/http.Server.ErrorLog: ").AsLogger()
-}
-
 // HTTPSetTLS .
 func HTTPSetTLS(s *http.Server, certfile string, keyfile string) error {
 	tls, err := DefaultTLSConfig(certfile, keyfile)
@@ -37,11 +29,18 @@ func HTTPSetTLS(s *http.Server, certfile string, keyfile string) error {
 
 // DefaultHTTPServer .
 func DefaultHTTPServer(addr string, handler http.HandlerFunc) *http.Server {
-	s := http.Server{}
-	HTTPSetDefault(&s)
+	s := &http.Server{}
+
+	s.ReadTimeout = 1 * time.Minute
+	s.WriteTimeout = 1 * time.Minute
+	s.IdleTimeout = 30 * time.Second
+
+	s.ErrorLog = stdlog.NewFromEnv(stdlog.Err(), "net/http.Server.ErrorLog: ").AsLogger()
+
 	s.Addr = addr
 	s.Handler = handler
-	return &s
+
+	return s
 }
 
 // CommonHTTPMiddlware .
@@ -52,13 +51,7 @@ func CommonHTTPMiddlware(printRequestLog bool) []func(http.HandlerFunc) http.Han
 	}
 
 	return []func(http.HandlerFunc) http.HandlerFunc{
-		paniclogger.New(0, func(ev paniclogger.Event) {
-			if err, ok := ev.Error.(error); ok {
-				errors.PrintTo(stdlog.Err(), errors.Wrap(err))
-			} else {
-				errors.PrintTo(stdlog.Err(), errors.Errorf("unknown error: %v", ev.Error))
-			}
-		}),
+		paniclogger.New(0, func(ev paniclogger.Event) { printErr(ev.Error) }),
 		reqLoggerMiddleware,
 	}
 }

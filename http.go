@@ -2,6 +2,7 @@ package mainutil
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net"
 	"net/http"
@@ -14,16 +15,28 @@ import (
 	"github.com/payfazz/stdlog"
 )
 
+func httpSetTLSInternal(s *http.Server, tls *tls.Config) {
+	tls.NextProtos = []string{"h2", "http/1.1"}
+	s.TLSConfig = tls
+}
+
 // HTTPSetTLS .
 func HTTPSetTLS(s *http.Server, certfile string, keyfile string) error {
 	tls, err := DefaultTLSConfig(certfile, keyfile)
 	if err != nil {
 		return errors.Wrap(err)
 	}
-	tls.NextProtos = []string{"h2", "http/1.1"}
+	httpSetTLSInternal(s, tls)
+	return nil
+}
 
-	s.TLSConfig = tls
-
+// HTTPSetTLSString .
+func HTTPSetTLSString(s *http.Server, certpem string, keypem string) error {
+	tls, err := DefaultTLSConfigString(certpem, keypem)
+	if err != nil {
+		return errors.Wrap(err)
+	}
+	httpSetTLSInternal(s, tls)
 	return nil
 }
 

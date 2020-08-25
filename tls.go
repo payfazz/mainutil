@@ -6,15 +6,8 @@ import (
 	"github.com/payfazz/go-errors"
 )
 
-// DefaultTLSConfig .
-func DefaultTLSConfig(certfile, keyfile string) (*tls.Config, error) {
-	f, err := tls.LoadX509KeyPair(certfile, keyfile)
-	if err != nil {
-		return nil, errors.Wrap(err)
-	}
+func defTLSConfig() *tls.Config {
 	return &tls.Config{
-		Certificates: []tls.Certificate{f},
-
 		PreferServerCipherSuites: true,
 		CipherSuites: []uint16{
 			// TLS 1.3
@@ -37,5 +30,30 @@ func DefaultTLSConfig(certfile, keyfile string) (*tls.Config, error) {
 			tls.CurveP521,
 			tls.CurveP384,
 		},
-	}, nil
+	}
+
+}
+
+// DefaultTLSConfig .
+func DefaultTLSConfig(certfile, keyfile string) (*tls.Config, error) {
+	f, err := tls.LoadX509KeyPair(certfile, keyfile)
+	if err != nil {
+		return nil, errors.Wrap(err)
+	}
+
+	config := defTLSConfig()
+	config.Certificates = []tls.Certificate{f}
+	return config, nil
+}
+
+// DefaultTLSConfigString .
+func DefaultTLSConfigString(certpem, keypem string) (*tls.Config, error) {
+	f, err := tls.X509KeyPair([]byte(certpem), []byte(keypem))
+	if err != nil {
+		return nil, errors.Wrap(err)
+	}
+
+	config := defTLSConfig()
+	config.Certificates = []tls.Certificate{f}
+	return config, nil
 }

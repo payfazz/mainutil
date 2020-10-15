@@ -69,6 +69,13 @@ func CommonHTTPMiddlware(printRequestLog bool) []func(http.HandlerFunc) http.Han
 	}
 }
 
+func maxDuration(a, b time.Duration) time.Duration {
+	if a > b {
+		return a
+	}
+	return b
+}
+
 // RunHTTPServerOn .
 func RunHTTPServerOn(
 	ctx context.Context,
@@ -93,13 +100,6 @@ func RunHTTPServerOn(
 		}
 		return nil
 	case <-ctx.Done():
-		maxDuration := func(a, b time.Duration) time.Duration {
-			if a > b {
-				return a
-			}
-			return b
-		}
-
 		if gracefulShutdown == 0 {
 			gracefulShutdown = maxDuration(s.ReadTimeout, s.WriteTimeout)
 		}

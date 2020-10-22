@@ -1,6 +1,6 @@
 // +build !linux,!darwin
 
-package mainutil
+package maincontext
 
 import (
 	"os"

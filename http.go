@@ -12,6 +12,7 @@ import (
 	"github.com/payfazz/go-middleware"
 	"github.com/payfazz/go-middleware/common/logger"
 	"github.com/payfazz/go-middleware/common/paniclogger"
+	"github.com/payfazz/mainutil/maintls"
 	"github.com/payfazz/stdlog"
 )
 
@@ -22,7 +23,7 @@ func httpSetTLSInternal(s *http.Server, tls *tls.Config) {
 
 // HTTPSetTLS .
 func HTTPSetTLS(s *http.Server, certfile string, keyfile string) error {
-	tls, err := DefaultTLSConfig(certfile, keyfile)
+	tls, err := maintls.TLSConfigCertFile(certfile, keyfile)
 	if err != nil {
 		return errors.Wrap(err)
 	}
@@ -32,7 +33,7 @@ func HTTPSetTLS(s *http.Server, certfile string, keyfile string) error {
 
 // HTTPSetTLSString .
 func HTTPSetTLSString(s *http.Server, certpem string, keypem string) error {
-	tls, err := DefaultTLSConfigString(certpem, keypem)
+	tls, err := maintls.TLSConfigCertString(certpem, keypem)
 	if err != nil {
 		return errors.Wrap(err)
 	}

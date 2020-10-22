@@ -1,14 +1,16 @@
-package mainutil
+package maintls
 
 import (
 	"crypto/tls"
-
-	"github.com/payfazz/go-errors"
 )
 
-func defTLSConfig() *tls.Config {
+// TLSConfig .
+func TLSConfig() *tls.Config {
 	return &tls.Config{
 		PreferServerCipherSuites: true,
+
+		MinVersion: tls.VersionTLS12,
+
 		CipherSuites: []uint16{
 			// TLS 1.3
 			tls.TLS_CHACHA20_POLY1305_SHA256,
@@ -34,26 +36,26 @@ func defTLSConfig() *tls.Config {
 
 }
 
-// DefaultTLSConfig .
-func DefaultTLSConfig(certfile, keyfile string) (*tls.Config, error) {
+// TLSConfigCertFile .
+func TLSConfigCertFile(certfile, keyfile string) (*tls.Config, error) {
 	f, err := tls.LoadX509KeyPair(certfile, keyfile)
 	if err != nil {
-		return nil, errors.Wrap(err)
+		return nil, err
 	}
 
-	config := defTLSConfig()
+	config := TLSConfig()
 	config.Certificates = []tls.Certificate{f}
 	return config, nil
 }
 
-// DefaultTLSConfigString .
-func DefaultTLSConfigString(certpem, keypem string) (*tls.Config, error) {
+// TLSConfigCertString .
+func TLSConfigCertString(certpem, keypem string) (*tls.Config, error) {
 	f, err := tls.X509KeyPair([]byte(certpem), []byte(keypem))
 	if err != nil {
-		return nil, errors.Wrap(err)
+		return nil, err
 	}
 
-	config := defTLSConfig()
+	config := TLSConfig()
 	config.Certificates = []tls.Certificate{f}
 	return config, nil
 }
